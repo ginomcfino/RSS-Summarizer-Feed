@@ -3,7 +3,7 @@
 ## Overview
 (This project is started recently and under construction)
 
-This project is a super simple dashboard for getting RSS feeds as even shorter summaries! 
+This project is a super simple dashboard for getting RSS feeds as even shorter summaries.
 
 *RSS is very very cool and we need to make more use of it!*
 
@@ -46,10 +46,10 @@ To get started with this project on your computer:
 This project is also currently hosted at [https://rss-summarizer-feed.onrender.com](https://rss-summarizer-feed.onrender.com)
 
 ## Contributing
-Contributions from the community are welcome! This started as a small weekend project, but if you find this project helpful and you're interested in contributing, please feel free to do so!
+Contributions from the community are welcome and encouraged! Please feel free to checkout, add pull requests, or create issues for the repo as you see fit. Feel free to build on top of it on your own as well and I'd be happy to see it!
 
 ## Credit
-This project is created by Weiqi Ji and licensed under the MIT license.
+This project is created by Weiqi Ji.
 
 ### Footnote:
 This project is proud to be part of the RSS reader community!
