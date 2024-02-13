@@ -3,7 +3,9 @@
 ## Overview
 (This project is started recently and under construction)
 
-This project is a super simple dashboard for getting RSS feeds as even shorter summaries. 
+This project is a super simple dashboard for getting RSS feeds as even shorter summaries! 
+
+*RSS is very very cool and we need to make more use of it!*
 
 With the help from Chat GPT, users get a short summary of all the latest updates from a feed on top of the feed itself, potentially making RSS even more useful.
 
