@@ -3,9 +3,9 @@ from dash import Input, Output, State, dcc, html
 import dash_bootstrap_components as dbc
 import os
 import openai
+import traceback
 # custom library
 from rss_tools import *
-import traceback
 
 '''
 Notes:
@@ -20,7 +20,7 @@ server = app.server
 # Global variable
 # try:
 #     API_KEY = os.environ['OPENAI_API_KEY']
-#     # API_KEY = os.environ['Does not esixt']
+#     # API_KEY = os.environ['Does not exist']
 # except:
 #     API_KEY = None
 # print(f'APIKEY: {API_KEY}')
