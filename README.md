@@ -1,7 +1,7 @@
 # [RSS Summarizer Dashboard](https://rss-summarizer-feed.onrender.com)
 
 ## Overview
-(This project is started recently and under construction)
+(under development!)
 
 This project is a super simple dashboard for getting RSS feeds as even shorter summaries! 
 
@@ -10,15 +10,6 @@ This project is a super simple dashboard for getting RSS feeds as even shorter s
 With the help from Chat GPT, users get a short summary of all the latest updates from a feed on top of the feed itself, potentially making RSS even more useful.
 
 RSS (Really Simple Syndication) is a semantic-web tool that keeps you updated by fetching the latest content from websites you're interested in. Instead of you visiting each website individually, RSS brings the new posts from these websites to you. It's like having a personal news feed for your favorite websites.
-
-### Demonstrated Skills (for recruiters):
-- Python
-- Object Oriented Programming
-- Deployment & Hosting
-- API integrations
-- User Experience
-- Debugging
-- Memory management
 
 ## Features
 - **RSS Feed**: Submit the URL to generate RSS feed on the dashboard. (please check URLs forlder for list of URLs and *guide for creating or getting more feed URLs)
