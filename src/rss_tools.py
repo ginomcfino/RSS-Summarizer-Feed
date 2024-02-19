@@ -12,8 +12,8 @@ def get_rss_feed(rss_url):
     feed = feedparser.parse(rss_url)
     
     print(f"\n>>> test printing feed for {rss_url}:")
+    print(json.dumps(feed, indent=4))
     print(type(feed))
-    # print(json.dumps(feed, indent=4))
     print(feed.keys())
 
     feed_keys = feed.keys()
@@ -54,6 +54,16 @@ def get_rss_feed(rss_url):
         'entries': entries,
     }
 
-#test
-# my_feed = get_rss_feed('https://rss.app/feeds/tGoc0pUg1UlLLPmx.xml')
-# print(json.dumps(list(my_feed['entries'])[-4:], indent=4))
+def valid_feed(url):
+    try:
+        fd = feedparser.parse(url)
+        return True
+    except:
+        return False
+
+# test
+my_feed = get_rss_feed('http://rss.news.yahoo.com/rss/world')
+
+print('\nFEED ENTRIES:')
+print(json.dumps(list(my_feed['entries'])[-4:], indent=4))
+

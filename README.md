@@ -43,7 +43,8 @@ To get started with this project on your computer:
 5. Launch the Dash application: `python feed.py`
 6. Navigate to `http://127.0.0.1:8050/` to interact with the app
 
-This project is also currently hosted at [https://rss-summarizer-feed.onrender.com](https://rss-summarizer-feed.onrender.com)
+This project is also currently hosted at [https://rss-summarizer-feed.onrender.com](https://rss-summarizer-feed.onrender.com) 
+(might take a while to load if the server has been inactive for this free deployment)
 
 ## Contributing
 Contributions from the community are welcome and encouraged! Please feel free to checkout, add pull requests, or create issues for the repo as you see fit. Feel free to build on top of it on your own as well and I'd be happy to see it!
