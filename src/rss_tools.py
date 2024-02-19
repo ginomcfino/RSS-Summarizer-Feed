@@ -1,6 +1,8 @@
 import feedparser
 import json
 import time
+from timeout import timeout
+import os
 
 '''
 Notes:
@@ -9,6 +11,17 @@ Notes:
 '''
 
 # helpers
+@timeout(5)
+def valid_feed(url):
+    try:
+        fd = feedparser.parse(url)
+        if type(fd) == feedparser.FeedParserDict:
+            return True
+        else:
+            return False
+    except:
+        return False
+    
 def load_json(filename):
     # Open the file
     with open(filename, 'r') as file:
@@ -17,11 +30,22 @@ def load_json(filename):
         return data
     return None
 
-def test_urls(txtfile):
+def transfer_urls(txtfile, output=None):
+    '''
+    assume txtfile is a list of urls in utf-8 format
+    '''
+    if output:
+        output = open(output, 'w') # convert output to writable file
     with open(txtfile, 'r') as file:
         for line in file:
-            print(line, end='\r')
-            time.sleep(0.01)
+            is_valid = valid_feed(line)
+            print(str(f'{is_valid} {line}'), end='\r')
+            if is_valid and output:
+                if line.endswith('\n'):
+                    output.write(line)
+                else:
+                    output.write(line + '\n')
+    if output: output.close()
 
 
 
@@ -90,13 +114,6 @@ def get_rss_feed(rss_url):
         'description': description,
         'entries': entries,
     }
-
-def valid_feed(url):
-    try:
-        fd = feedparser.parse(url)
-        return True
-    except:
-        return False
     
 
 def test_get_rss(test_url):
@@ -113,6 +130,6 @@ def test_get_json():
     print(test_url)
 
 if __name__=='__main__':
-    test_urls('../URLs/url_list.txt')
+    transfer_urls('../URLs/url_list.txt', '../URLs/valid_url_list.txt')
     
 
