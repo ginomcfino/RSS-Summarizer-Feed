@@ -6,6 +6,7 @@ import openai
 import traceback
 # custom library
 from rss_tools import *
+from helpers import *
 
 '''
 Notes:
@@ -25,49 +26,61 @@ server = app.server
 #     API_KEY = None
 # print(f'APIKEY: {API_KEY}')
 
+# Use the function to read options from a file
+options = read_options_from_file('../URLs/test_urls.txt')
+
 # Define layout
 app.layout = html.Div(
     [
         html.Div(
             # style={"display": "flex", "justify-content": "center", "gap": "10px"},
-            style={"text-align": "center"},
+            style={
+                'display': 'flex',
+                'flex-direction': 'column',
+                'justify-content': 'center',
+                'align-items': 'center',
+            },
+
             children=[
                 html.H1("RSS feed dashboard wih GPT"),
+                html.P("project repository: https://github.com/ginomcfino/RSS-Summarizer-Feed"),
                 # dcc.Input(
                 #     id="saved-api-key",
                 #     type="password",
                 #     placeholder="API key missing...",
                 # ),
                 # html.Button("Submit", id="api-key-submit", n_clicks=0),
-                html.Div("select feed"),
+                html.H4("input feed url:"),
+                # dcc.Input(
+                #     id="rss-input",
+                #     type="text",
+                #     placeholder="https://news.ycombinator.com/rss",
+                #     style={"width": "50%"},
+                # ),
+                # html.Button("Submit", id="rss-submit", n_clicks=0),
+            ],
+        ),
+        html.Div(
+            style={
+                "display": "flex",
+                "flex-direction": "row",
+                "justify-content": "center",
+                "align-items": "center",
+            },
+            children=[
                 dcc.Input(
                     id="rss-input",
                     type="text",
                     placeholder="https://news.ycombinator.com/rss",
                     style={"width": "50%"},
                 ),
-                # dcc.Dropdown(
-                #     id="rss-input",
-                #     options=[
-                #         {"label": "Option 1", "value": "1"},
-                #         {"label": "Option 2", "value": "2"},
-                #         {"label": "Option 3", "value": "3"},
-                #     ],
-                #     searchable=True,
-                #     placeholder="Enter text or select an option",
-                #     style={"width":"50%", "justify-content":"right"},
-                # ),
                 html.Button("Submit", id="rss-submit", n_clicks=0),
-            ],
+            ]
         ),
-        # html.Div(id="rss-output", children="nothing yet"),
-        # html.Div(' '),
         html.Div(
             id='rss-output', 
             style={
                 'overflowY': 'scroll', 
-                # 'height': '500px', 
-                # 'border': '1px solid black'
             }
         )
     ]

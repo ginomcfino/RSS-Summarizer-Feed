@@ -3,6 +3,7 @@ import json
 import time
 from timeout import timeout
 import os
+from collections import Counter
 
 '''
 Notes:
@@ -47,6 +48,44 @@ def transfer_urls(txtfile, output=None):
                     output.write(line + '\n')
     if output: output.close()
 
+def update_counter(keys:list, counter:Counter):
+    if len(keys) > 0:
+        for k in keys:
+            if k in counter:
+                counter[k] += 1
+            else:
+                counter[k] = 1
+
+def count_feed_keys(filename):
+    '''
+    filename: should lead to a text file with a list of urls
+    '''
+    feed_key_counter = Counter()
+    entries_key_counter = Counter()
+    feed_feed_key_counter = Counter()
+    with open(filename, 'r') as file:
+        for line in file:
+            feed = feedparser.parse(line)
+            feed_keys = list(feed.keys())
+            try:
+                entries_keys = list(feed.entries[0].keys())
+            except:
+                entries_keys = []
+            try:
+                feed_feed_keys = list(feed.feed.keys())
+            except:
+                feed_feed_keys = []
+            # update_counter = lambda keys, counter: keys + counter
+            update_counter(feed_keys, feed_key_counter)
+            update_counter(entries_keys, entries_key_counter)
+            update_counter(feed_feed_keys, feed_feed_key_counter)
+    return {
+        "feed": feed_key_counter,
+        "entries": entries_key_counter,
+        "feed feed": feed_feed_key_counter
+    }
+
+            
 
 
 def get_rss_feed(rss_url):
@@ -130,6 +169,8 @@ def test_get_json():
     print(test_url)
 
 if __name__=='__main__':
-    transfer_urls('../URLs/url_list.txt', '../URLs/valid_url_list.txt')
+    # transfer_urls('../URLs/url_list.txt', '../URLs/valid_url_list.txt')
+    key_counters = count_feed_keys('../URLs/test_urls.txt')
+    print(json.dumps(key_counters, indent=4))
     
 
