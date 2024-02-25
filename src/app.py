@@ -4,8 +4,10 @@ import dash_bootstrap_components as dbc
 import os
 import openai
 import traceback
+import time
 # custom library
 from rss_tools import *
+from helpers import *
 
 '''
 Notes:
@@ -20,106 +22,110 @@ server = app.server
 # Global variable
 # try:
 #     API_KEY = os.environ['OPENAI_API_KEY']
-#     # API_KEY = os.environ['Does not exist']
 # except:
 #     API_KEY = None
 # print(f'APIKEY: {API_KEY}')
+
+# Use the function to read options from a file
+options = read_options_from_file('../URLs/test_urls.txt')
 
 # Define layout
 app.layout = html.Div(
     [
         html.Div(
             # style={"display": "flex", "justify-content": "center", "gap": "10px"},
-            style={"text-align": "center"},
+            style={
+                "display": "flex",
+                "flex-direction": "column",
+                "justify-content": "center",
+                "align-items": "center",
+            },
             children=[
                 html.H1("RSS feed dashboard wih GPT"),
-                # dcc.Input(
-                #     id="saved-api-key",
-                #     type="password",
-                #     placeholder="API key missing...",
-                # ),
-                # html.Button("Submit", id="api-key-submit", n_clicks=0),
-                html.Div("select feed"),
+                html.P(
+                    "project repository: https://github.com/ginomcfino/RSS-Summarizer-Feed"
+                ),
+                html.H4("input rss feed url:"),
+            ],
+        ),
+        html.Div(
+            style={
+                "display": "flex",
+                "flex-direction": "row",
+                "justify-content": "center",
+                "align-items": "center",
+            },
+            children=[
                 dcc.Input(
                     id="rss-input",
                     type="text",
-                    placeholder="https://news.ycombinator.com/rss",
+                    placeholder="ex: https://news.ycombinator.com/rss",
                     style={"width": "50%"},
+                    n_submit=0,
                 ),
-                # dcc.Dropdown(
-                #     id="rss-input",
-                #     options=[
-                #         {"label": "Option 1", "value": "1"},
-                #         {"label": "Option 2", "value": "2"},
-                #         {"label": "Option 3", "value": "3"},
-                #     ],
-                #     searchable=True,
-                #     placeholder="Enter text or select an option",
-                #     style={"width":"50%", "justify-content":"right"},
-                # ),
                 html.Button("Submit", id="rss-submit", n_clicks=0),
             ],
         ),
-        # html.Div(id="rss-output", children="nothing yet"),
-        # html.Div(' '),
         html.Div(
-            id='rss-output', 
             style={
-                'overflowY': 'scroll', 
-                # 'height': '500px', 
-                # 'border': '1px solid black'
-            }
-        )
+                "display": "flex",
+                "flex-direction": "column",
+                "justify-content": "center",
+                "align-items": "center",
+                'padding-top': '10px',
+            },
+            children=[
+                dcc.Loading(
+                    id="loading-indicator",
+                    type="circle",
+                    children=[html.Div(id="rss-output")],
+                ),
+            ],
+        ),
     ]
 )
-
-
-# Define callbacks
-# @app.callback(
-#     Output("modal-fs", "is_open"),
-#     Output("saved-api-key", "value"),
-#     Input("api-key-submit", "n_clicks"),
-#     State("user-api-key", "value"),
-# )
-# def log_api_key(n_clicks, key_input):
-#     if n_clicks > 0:
-#         # NOTE: need to also test the API key before closing modal
-#         return False, key_input
-#     else:
-#         return True, None
 
 @app.callback(
     Output("rss-output", "children"),
     Input("rss-submit", "n_clicks"),
+    Input("rss-input", "n_submit"),
     State("rss-input", "value"),
 )
-def update_output(n_clicks, url):
-    if n_clicks > 0:
+def update_output(n_clicks_submit, n_clicks_input, url):
+    if n_clicks_submit > 0 or n_clicks_input > 0:
+        # Set the loading indicator to True
+        children = [
+            dcc.Loading(
+                id='loading-indicator-inner',
+                type='circle',
+                children=[
+                    html.Div(id='rss-json')
+                ],
+            )
+        ]
+        # Update the output component with the loading indicator
+        output_div = html.Div(id='rss-output', children=children)
+        app.layout = html.Div([output_div])
+
         try:
-            feed = get_rss_feed(url)['entries']
-            
-            # print()
-            # print(json.dumps(feed, indent=4))
-            
-            children = []
-            for f in feed:
-                card = dbc.Card(
-                    dbc.CardBody(
-                        [
-                            html.H4(f['title']),
-                            html.P(f['description']),
-                            dbc.CardLink("Open Link", href=f['link']),
-                        ]
-                    )
-                )
-                children.append(card)
+            has_content, feed = get_rss_feed(url)
+            if not has_content:
+                return [dcc.Markdown(f"Bad Feed Error:\n{json.dumps(feed, indent=4)}", style={'whiteSpace': 'pre-wrap', 'wordBreak': 'break-all'})]
+
+            # otherwise, feed has valid list of entries, convert them to cards
+            children = generate_feed(feed)
+
+            # Set the loading indicator to False
+            children_inner = [html.Div(id="rss-json")]
+            output_div_inner = html.Div(id='rss-output', children=children_inner)
+            app.layout = html.Div([output_div_inner])
+
             return children
         except Exception as e:
             print(traceback())
             print()
             print(e)
-            return ["Invalid link, please doublecheck."]
-
+            return [html.P(f"Error: {e}")]
 
 if __name__ == "__main__":
     app.run_server(debug=True)

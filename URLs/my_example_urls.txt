@@ -1,0 +1,11 @@
+http://thecaucus.blogs.nytimes.com/feed/
+http://feeds.sbnation.com/rss/streams
+http://www.buzzfeed.com/health.xml
+http://www.macworld.com/index.rss
+http://www.newyorker.com/feed/news
+http://toucharcade.com/feed/
+http://techau.com.au/feed/
+http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml
+http://metro.co.uk/entertainment/tv/feed/
+http://www.theage.com.au/rssheadlines/technology-news/article/rss.xml
+http://www.latimes.com/world/rss2.0.xml

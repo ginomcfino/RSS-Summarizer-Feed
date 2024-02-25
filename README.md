@@ -1,25 +1,31 @@
 # [RSS Summarizer Dashboard](https://rss-summarizer-feed.onrender.com)
 
 ## Overview
-(under development!)
 
-This project is a super simple dashboard for getting RSS feeds as even shorter summaries! 
+This project is a simple dashboard for viewing RSS feeds.
 
-*RSS is very very cool and we need to make more use of it!*
+RSS (Really Simple Syndication) is a semantic-web tool that keeps you updated by fetching the latest content from websites you're interested in. Instead of you visiting each website individually, RSS brings the new posts from these websites to you. It's like having a personal news feed for your favorite websites. 
 
-With the help from Chat GPT, users get a short summary of all the latest updates from a feed on top of the feed itself, potentially making RSS even more useful.
+My hope is more people will learn about RSS and keep innovating in the RSS community to keep it alive because it is seriously useful and it has been the backbone of information for interent search engines like Google, and it can have many practical applications for people to browse internet that doesn't involve using a traditional browser software -- ie. more ways and more direct ways to interface with information on the internet in the future.
 
-RSS (Really Simple Syndication) is a semantic-web tool that keeps you updated by fetching the latest content from websites you're interested in. Instead of you visiting each website individually, RSS brings the new posts from these websites to you. It's like having a personal news feed for your favorite websites.
+These days, there are less and less RSS feeds being maintained by websites, and the quality of the RSS feeds being maintained are going down as well -- because RSS is free, and takes traffic away from those websites. Some RSS feeds are now filled with ads and some are filled with posts from years ago and never updated.
 
-## Features
-- **RSS Feed**: Submit the URL to generate RSS feed on the dashboard. (please check URLs forlder for list of URLs and *guide for creating or getting more feed URLs)
-- **User-Friendly Interface**: Simplicity
-- **AI Summary**: Stay informed in a glace
+With this project, I wanted to try compacting the RSS feed information being delivered to me even further just for fun, by building my own RSS feed dashboard that integrates GPT. It's not a great idea in practice, but here it is anyway, and some of the code can plucked by AI to be recycled in other coding projects.
 
+## Features:
+- test RSS feed URLs, and get summaries of their feeds.
+- GPT will also assign a [Up-to-date]/[Deprecated] Rating.
+- ask GPT to generate a summary for the feed based on its entries (won't always be useful)
+
+## Ideas
+- modify code to subscribe to many many RSS feeds
+- modify code to rank RSS sources based on completeness, informativeness, etc.
+- make a RSS summarizer bot that sends notifications when there's an update
+- build and maintain a live database of valid RSS urls
 
 ## Project Structure
 The repository is structured as follows:
-- `feed.py`: This is the entry point to the Dash UI.
+- `src/app.py`: This is the entry point to the Dash UI.
 - `rss_tools.py`: File containing necessary functions for working with RSS.
 - `URLs/`: This directory contains a json file as well as a pdf file keeping a list of known URLs.
 

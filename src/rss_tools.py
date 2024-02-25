@@ -1,119 +1,41 @@
-import feedparser
-import json
-import time
-from timeout import timeout
-import os
+from helpers import *
 
 '''
 Notes:
 > pagination: feed size is rarely an issue
 > custom URLs: you can generate at rss.app
 '''
-
-# helpers
-@timeout(5)
-def valid_feed(url):
-    try:
-        fd = feedparser.parse(url)
-        if type(fd) == feedparser.FeedParserDict:
-            return True
-        else:
-            return False
-    except:
-        return False
-    
-def load_json(filename):
-    # Open the file
-    with open(filename, 'r') as file:
-        # Load the JSON data
-        data = json.load(file)
-        return data
-    return None
-
-def transfer_urls(txtfile, output=None):
-    '''
-    assume txtfile is a list of urls in utf-8 format
-    '''
-    if output:
-        output = open(output, 'w') # convert output to writable file
-    with open(txtfile, 'r') as file:
-        for line in file:
-            is_valid = valid_feed(line)
-            print(str(f'{is_valid} {line}'), end='\r')
-            if is_valid and output:
-                if line.endswith('\n'):
-                    output.write(line)
-                else:
-                    output.write(line + '\n')
-    if output: output.close()
-
+            
 
 
 def get_rss_feed(rss_url):
+    '''
+    returns a dictionary if the feed is valid, otherwise returns None
+    '''
     # Parse the RSS feed using feedparser
     feed = feedparser.parse(rss_url)
-    
-    print(f"\n>>> test printing feed for {rss_url}:")
-    print(json.dumps(feed, indent=4))
-    print(type(feed))
 
-    print("\nKeys: ")
-    print(feed.keys())
-    print("Feed Keys: ")
-    print(feed.feed.keys())
-    print("Entries Keys: ")
-    print(feed.entries[0].keys())
+    # try:
+    #     print(f"\n>>> test printing feed for {rss_url}:")
+    #     # print(json.dumps(feed, indent=4))
+    #     print(type(feed))
 
-    feed_keys = feed.keys()
+    #     print("Keys: ")
+    #     print(feed.keys())
+    #     print("Feed Keys: ")
+    #     print(feed.feed.keys())
+    #     print("Entries Keys: ")
+    #     print(feed.entries[0].keys())
+    # except Exception as e:
+    #     print(f'\nError Printing: {e}')
 
-    feed_overall = {
-        "title": None,
-        "link": None,
-        "subtitle" : None,
-    }
-
-    feed_entry = {
-        "title": None,
-        "published": None,
-        "link": None,
-        "desc": None,
-    }
-
-    # Extract the relevant feed data
-    try:
-        title = feed.feed.title
-    except Exception as e:
-        title = 'NA'
-    try:
-        link = feed.feed.link
-    except Exception as e:
-        link = 'NA'
-    try:
-        description = feed.feed.description
-    except Exception as e:
-        description = 'NA'
-
-    # link = feed.feed.link
-    # description = feed.feed.description
-    entries = []
-    try:
-        for entry in feed.entries:
-            entries.append({
-                'title': entry.title,
-                'link': entry.link,
-                'description': entry.description,
-                'published': entry.published,
-            })
-    except Exception as e:
-        entries.append('sorry, invalid url')
-    
-    # Return feed data
-    return {
-        'title': title,
-        'link': link,
-        'description': description,
-        'entries': entries,
-    }
+    if feed.bozo:
+        return False, 'Bozo Error'
+    else:
+        if feed.entries and len(feed.entries) > 0:
+            return True, feed.entries
+        else:
+            return False, feed
     
 
 def test_get_rss(test_url):
@@ -129,7 +51,9 @@ def test_get_json():
     test_url = my_rss_list['URLs']['Yahoo World News']
     print(test_url)
 
-if __name__=='__main__':
-    transfer_urls('../URLs/url_list.txt', '../URLs/valid_url_list.txt')
+# if __name__=='__main__':
+#     # transfer_urls('../URLs/url_list.txt', '../URLs/valid_url_list.txt')
+#     key_counters = count_feed_keys('../URLs/test_urls.txt')
+#     print(json.dumps(key_counters, indent=4))
     
 
