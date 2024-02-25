@@ -6,7 +6,7 @@ import feedparser
 import json
 from timeout import timeout
 from collections import Counter
-import time
+import openai
 
 
 # 1. UI Helper Functions
@@ -184,6 +184,16 @@ def update_counter(keys:list, counter:Counter):
             else:
                 counter[k] = 1
 
+# 3. API Helper Functions
+
+# check whether api key is valid
+def valid_api_key(api_key):
+    try:
+        openai.api_key = api_key
+        _models = openai.models.list()
+        return True
+    except:
+        return False
 
 # run as needed
 if __name__=='__main__':
