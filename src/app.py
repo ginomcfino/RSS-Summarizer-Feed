@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 import os
 import openai
 import traceback
+import time
 # custom library
 from rss_tools import *
 from helpers import *
@@ -21,7 +22,6 @@ server = app.server
 # Global variable
 # try:
 #     API_KEY = os.environ['OPENAI_API_KEY']
-#     # API_KEY = os.environ['Does not exist']
 # except:
 #     API_KEY = None
 # print(f'APIKEY: {API_KEY}')
@@ -35,29 +35,17 @@ app.layout = html.Div(
         html.Div(
             # style={"display": "flex", "justify-content": "center", "gap": "10px"},
             style={
-                'display': 'flex',
-                'flex-direction': 'column',
-                'justify-content': 'center',
-                'align-items': 'center',
+                "display": "flex",
+                "flex-direction": "column",
+                "justify-content": "center",
+                "align-items": "center",
             },
-
             children=[
                 html.H1("RSS feed dashboard wih GPT"),
-                html.P("project repository: https://github.com/ginomcfino/RSS-Summarizer-Feed"),
-                # dcc.Input(
-                #     id="saved-api-key",
-                #     type="password",
-                #     placeholder="API key missing...",
-                # ),
-                # html.Button("Submit", id="api-key-submit", n_clicks=0),
-                html.H4("input feed url:"),
-                # dcc.Input(
-                #     id="rss-input",
-                #     type="text",
-                #     placeholder="https://news.ycombinator.com/rss",
-                #     style={"width": "50%"},
-                # ),
-                # html.Button("Submit", id="rss-submit", n_clicks=0),
+                html.P(
+                    "project repository: https://github.com/ginomcfino/RSS-Summarizer-Feed"
+                ),
+                html.H4("input rss feed url:"),
             ],
         ),
         html.Div(
@@ -71,68 +59,74 @@ app.layout = html.Div(
                 dcc.Input(
                     id="rss-input",
                     type="text",
-                    placeholder="https://news.ycombinator.com/rss",
+                    placeholder="ex: https://news.ycombinator.com/rss",
                     style={"width": "50%"},
+                    n_submit=0,
                 ),
                 html.Button("Submit", id="rss-submit", n_clicks=0),
-            ]
+            ],
         ),
         html.Div(
-            id='rss-output', 
             style={
-                'overflowY': 'scroll', 
-            }
-        )
+                "display": "flex",
+                "flex-direction": "column",
+                "justify-content": "center",
+                "align-items": "center",
+                'padding-top': '10px',
+            },
+            children=[
+                dcc.Loading(
+                    id="loading-indicator",
+                    type="circle",
+                    children=[html.Div(id="rss-output")],
+                ),
+            ],
+        ),
     ]
 )
-
-
-# Define callbacks
-# @app.callback(
-#     Output("modal-fs", "is_open"),
-#     Output("saved-api-key", "value"),
-#     Input("api-key-submit", "n_clicks"),
-#     State("user-api-key", "value"),
-# )
-# def log_api_key(n_clicks, key_input):
-#     if n_clicks > 0:
-#         # NOTE: need to also test the API key before closing modal
-#         return False, key_input
-#     else:
-#         return True, None
 
 @app.callback(
     Output("rss-output", "children"),
     Input("rss-submit", "n_clicks"),
+    Input("rss-input", "n_submit"),
     State("rss-input", "value"),
 )
-def update_output(n_clicks, url):
-    if n_clicks > 0:
+def update_output(n_clicks_submit, n_clicks_input, url):
+    if n_clicks_submit > 0 or n_clicks_input > 0:
+        # Set the loading indicator to True
+        children = [
+            dcc.Loading(
+                id='loading-indicator-inner',
+                type='circle',
+                children=[
+                    html.Div(id='rss-json')
+                ],
+                style={'height': '600px'}
+            )
+        ]
+        # Update the output component with the loading indicator
+        output_div = html.Div(id='rss-output', children=children)
+        app.layout = html.Div([output_div])
+
         try:
-            feed = get_rss_feed(url)['entries']
-            
-            # print()
-            # print(json.dumps(feed, indent=4))
-            
-            children = []
-            for f in feed:
-                card = dbc.Card(
-                    dbc.CardBody(
-                        [
-                            html.H4(f['title']),
-                            html.P(f['description']),
-                            dbc.CardLink("Open Link", href=f['link']),
-                        ]
-                    )
-                )
-                children.append(card)
+            time.sleep(2)  # Simulate a long-running function
+            feed = get_rss_feed(url)
+            feed_json = json.dumps(feed, indent=4)
+            children = [
+                dcc.Markdown(feed_json, style={'whiteSpace': 'pre-wrap', 'wordBreak': 'break-all'}, id='rss-json'),
+            ]
+            # Set the loading indicator to False
+            children_inner = [
+                html.Div(id='rss-json')
+            ]
+            output_div_inner = html.Div(id='rss-output', children=children_inner)
+            app.layout = html.Div([output_div_inner])
             return children
         except Exception as e:
             print(traceback())
             print()
             print(e)
-            return ["Invalid link, please doublecheck."]
-
+            return [html.P(f"Error: {e}")]
 
 if __name__ == "__main__":
     app.run_server(debug=True)
