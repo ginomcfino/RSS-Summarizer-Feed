@@ -27,7 +27,7 @@ server = app.server
 # print(f'APIKEY: {API_KEY}')
 
 # Use the function to read options from a file
-options = read_options_from_file('../URLs/test_urls.txt')
+options = read_options_from_file('../URLs/my_example_urls.txt')
 
 # Define layout
 app.layout = html.Div(
@@ -69,6 +69,25 @@ app.layout = html.Div(
         html.Div(
             style={
                 "display": "flex",
+                "flex-direction": "row",
+                "justify-content": "center",
+                "align-items": "center",
+            },
+            children=[
+                html.H5("or select from the list:"),
+                dcc.Dropdown(
+                    id="rss-dropdown",
+                    options=options,
+                    style={
+                        'margin-left': '10px',
+                        'min-width': '25%',
+                    }
+                ),
+            ],
+        ),
+        html.Div(
+            style={
+                "display": "flex",
                 "flex-direction": "column",
                 "justify-content": "center",
                 "align-items": "center",
@@ -84,6 +103,14 @@ app.layout = html.Div(
         ),
     ]
 )
+
+@app.callback(
+    Output("rss-input", "value"),
+    Input("rss-dropdown", "value"),
+)
+def update_input(value):
+    if value is not None:
+        return value
 
 @app.callback(
     Output("rss-output", "children"),
