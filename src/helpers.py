@@ -58,7 +58,7 @@ def generate_feed(entries):
 
         body_text = str(entry_fields['summary'])
 
-        if '</' in body_text and '>' in body_text:
+        if '<' in body_text and '>' in body_text:
             body_text = (
                 """<style>
                         img {

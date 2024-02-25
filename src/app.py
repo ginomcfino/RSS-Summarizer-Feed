@@ -43,6 +43,7 @@ app.layout = html.Div(
                 html.P(
                     "project repository: https://github.com/ginomcfino/RSS-Summarizer-Feed"
                 ),
+                html.P("(under development, by Weiqi Ji)"),
                 html.Br(),
                 html.H4("enter rss feed url:"),
             ],
