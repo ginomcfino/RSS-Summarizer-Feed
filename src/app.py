@@ -104,8 +104,8 @@ def update_output(n_clicks_submit, n_clicks_input, url):
             )
         ]
         # Update the output component with the loading indicator
-        output_div = html.Div(id='rss-output', children=children)
-        app.layout = html.Div([output_div])
+        # output_div = html.Div(id='rss-output', children=children)
+        # app.layout = html.Div([output_div])
 
         try:
             has_content, feed = get_rss_feed(url)
@@ -116,9 +116,9 @@ def update_output(n_clicks_submit, n_clicks_input, url):
             children = generate_feed(feed)
 
             # Set the loading indicator to False
-            children_inner = [html.Div(id="rss-json")]
-            output_div_inner = html.Div(id='rss-output', children=children_inner)
-            app.layout = html.Div([output_div_inner])
+            # children_inner = [html.Div(id="rss-json")]
+            # output_div_inner = html.Div(id='rss-output', children=children_inner)
+            # app.layout = html.Div([output_div_inner])
 
             return children
         except Exception as e:
