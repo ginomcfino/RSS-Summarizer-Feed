@@ -6,14 +6,15 @@ import feedparser
 import json
 from timeout import timeout
 from collections import Counter
+import time
 
 
 # 1. UI Helper Functions
 
 # generate Card element from feed
-def generate_feed(feed):
+def generate_feed(entries):
     children = []
-    for f in feed:
+    for entry in entries:
         '''
         display:
         - image if exists
@@ -21,22 +22,62 @@ def generate_feed(feed):
         - description
         - link
         '''
-        f = dict(f)
-        body_text = f['description']
-        if '<p>' in body_text:
-            # use at own risk, make sure you trust the rss url
-            card_description = DangerouslySetInnerHTML(body_text)
+        entry_fields = {
+            "title": None,
+            "link": None,
+            "published": None,
+            "summary": None,
+            "content": None, # not yet implemented
+            "media": None,
+        }
+
+        # must have title and link
+        entry_fields['title'] = entry.get('title', 'No Title')
+        entry_fields['link'] = entry.get('link', 'No Link')
+
+        try:
+            entry_fields['published'] = entry.get('published')
+        except:
+            entry_fields['published'] = 'No published date'
+
+        try:
+            entry_fields['summary'] = entry.get('summary')
+        except:
+            try:
+                entry_fields['summary'] = entry.get('description')
+            except:
+                try:
+                    entry_fields['summary'] = entry.get('content')
+                except:
+                    entry_fields['summary'] = 'No Summary'
+
+        try:
+            entry_fields['media'] = entry.get('media_content')
+        except:
+            entry_fields['media'] = None
+
+        body_text = str(entry_fields['summary'])
+
+        if '</' in body_text and '>' in body_text:
+            body_text = (
+                """<style>
+                        img {
+                            max-width:  100%;
+                            height: auto;
+                        }
+                    </style>"""
+                + body_text
+            )
+            card_description = html.Div(DangerouslySetInnerHTML(body_text))
         else:
             card_description = html.P(body_text, style={'white-space': 'pre-wrap', 'wordBreak': 'break-all'})
 
         card_body = dbc.Card(
             dbc.CardBody(
                 [
-                    html.H4(f['title']),
-                    # html.P.Markdown(f['description']),
-                    # html.P(f['description'], style={'white-space': 'pre-wrap', 'wordBreak': 'break-all'}),
+                    html.H4(entry['title']),
                     card_description,
-                    dbc.CardLink("Go to source", href=f['link']),
+                    dbc.CardLink("Go to source", href=entry['link']),
                 ]
             ),
         )
@@ -142,7 +183,6 @@ def update_counter(keys:list, counter:Counter):
                 counter[k] += 1
             else:
                 counter[k] = 1
-
 
 
 # run as needed

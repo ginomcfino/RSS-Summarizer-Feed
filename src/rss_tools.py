@@ -30,33 +30,12 @@ def get_rss_feed(rss_url):
     #     print(f'\nError Printing: {e}')
 
     if feed.bozo:
-        return 'Bozo Error'
+        return False, 'Bozo Error'
     else:
-        return feed
-    
-    # common feed elements:
-    
-
-
-
-
-    # feed_keys = feed.keys()
-
-    feed_overall = {
-        "title": None,
-        "link": None,
-        "subtitle" : None,
-    }
-
-    feed_entry = {
-        "title": None,
-        "published": None,
-        "link": None,
-        "desc": None,
-    }
-
-    # Extract the relevant feed data
-    
+        if feed.entries and len(feed.entries) > 0:
+            return True, feed.entries
+        else:
+            return False, feed
     
 
 def test_get_rss(test_url):

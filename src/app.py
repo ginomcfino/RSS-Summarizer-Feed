@@ -108,18 +108,18 @@ def update_output(n_clicks_submit, n_clicks_input, url):
         app.layout = html.Div([output_div])
 
         try:
-            feed = get_rss_feed(url)
-            feed_json = json.dumps(feed, indent=4)
-            print(feed_json)
-            children = [
-                dcc.Markdown(feed_json, style={'whiteSpace': 'pre-wrap', 'wordBreak': 'break-all'}, id='rss-json'),
-            ]
+            has_content, feed = get_rss_feed(url)
+            if not has_content:
+                return [dcc.Markdown(f"Bad Feed Error:\n{json.dumps(feed, indent=4)}", style={'whiteSpace': 'pre-wrap', 'wordBreak': 'break-all'})]
+
+            # otherwise, feed has valid list of entries, convert them to cards
+            children = generate_feed(feed)
+
             # Set the loading indicator to False
-            children_inner = [
-                html.Div(id='rss-json')
-            ]
+            children_inner = [html.Div(id="rss-json")]
             output_div_inner = html.Div(id='rss-output', children=children_inner)
             app.layout = html.Div([output_div_inner])
+
             return children
         except Exception as e:
             print(traceback())
