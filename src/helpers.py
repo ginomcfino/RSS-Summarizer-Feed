@@ -71,7 +71,7 @@ def read_options_from_file(file_path):
 def valid_feed(url):
     try:
         fd = feedparser.parse(url)
-        if type(fd) == feedparser.FeedParserDict:
+        if type(fd) == feedparser.FeedParserDict and not fd.bozo:
             return True
         else:
             return False
@@ -145,8 +145,10 @@ def update_counter(keys:list, counter:Counter):
 
 
 
-# Test Scripts
-# if __name__=='__main__':
-#     # transfer_urls('../URLs/url_list.txt', '../URLs/valid_url_list.txt')
-#     key_counters = count_feed_keys('../URLs/test_urls.txt')
-#     print(json.dumps(key_counters, indent=4))
+# run as needed
+if __name__=='__main__':
+    # transfer_urls('../URLs/valid_url_list.txt', '../URLs/valid_urls_2.txt')
+
+    print('now counting keys: ')
+    key_counters = count_feed_keys( '../URLs/valid_urls_2.txt')
+    print(json.dumps(key_counters, indent=4))

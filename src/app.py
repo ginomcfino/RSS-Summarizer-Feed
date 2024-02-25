@@ -101,7 +101,6 @@ def update_output(n_clicks_submit, n_clicks_input, url):
                 children=[
                     html.Div(id='rss-json')
                 ],
-                style={'height': '600px'}
             )
         ]
         # Update the output component with the loading indicator
@@ -109,9 +108,9 @@ def update_output(n_clicks_submit, n_clicks_input, url):
         app.layout = html.Div([output_div])
 
         try:
-            time.sleep(2)  # Simulate a long-running function
             feed = get_rss_feed(url)
             feed_json = json.dumps(feed, indent=4)
+            print(feed_json)
             children = [
                 dcc.Markdown(feed_json, style={'whiteSpace': 'pre-wrap', 'wordBreak': 'break-all'}, id='rss-json'),
             ]
