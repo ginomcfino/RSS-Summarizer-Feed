@@ -9,9 +9,12 @@ http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml
 http://metro.co.uk/entertainment/tv/feed/
 http://www.theage.com.au/rssheadlines/technology-news/article/rss.xml
 http://www.latimes.com/world/rss2.0.xml
+http://grist.org/feed/
 https://apartmenttherapy.com/main.rss
 https://techcrunch.com/feed
 https://gizmodo.com/rss
 https://lifehacker.com/index.xml
 https://news.vice.com/rss
 https://medium.com/feed/@jerryjliu98
+http://phys.org/rss-feed/
+http://feeds2.feedburner.com/time/scienceandhealth

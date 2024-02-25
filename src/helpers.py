@@ -77,7 +77,7 @@ def generate_feed(entries):
                 [
                     html.H4(entry['title']),
                     card_description,
-                    dbc.CardLink("Go to source", href=entry['link']),
+                    dbc.CardLink("view article", href=entry['link']),
                 ]
             ),
         )

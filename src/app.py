@@ -43,8 +43,7 @@ app.layout = html.Div(
                 html.P(
                     "project repository: https://github.com/ginomcfino/RSS-Summarizer-Feed"
                 ),
-                html.P("(under development, by Weiqi Ji)"),
-                html.Br(),
+                html.P("(under development by Weiqi Ji)"),
                 html.H4("enter rss feed url:"),
             ],
         ),
@@ -210,7 +209,7 @@ def refresh_connection(n_clicks, api_key):
                         return {"color": "green"}, "Connected to GPT", None
                     else:
                         return (
-                            {"color": "red"},
+                            {"color": "blue"},
                             "Not connected to GPT",
                             [
                                 "Please enter API key: ",
@@ -219,7 +218,7 @@ def refresh_connection(n_clicks, api_key):
                         )
                 except:
                     return (
-                        {"color": "red"},
+                        {"color": "blue"},
                         "Not connected to GPT",
                         [
                             "Please enter API key: ",
