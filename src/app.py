@@ -73,7 +73,7 @@ app.layout = html.Div(
                 "align-items": "center",
             },
             children=[
-                html.H5("or select from the list:"),
+                html.H5("or try example feeds from list:"),
                 dcc.Dropdown(
                     id="rss-dropdown",
                     options=options,
@@ -160,11 +160,11 @@ def update_output(n_clicks_submit, n_clicks_input, url):
                             ],
                         ),
                         html.Button(
-                            "Await GPT Connection",
+                            "Await connection to GPT",
                             id="refresh-button",
-                            n_clicks=0,
+                            n_clicks=None,
                             style={
-                                "color": "orange",
+                                "color": "gray",
                             },
                         ),
                     ],
@@ -188,6 +188,7 @@ def update_output(n_clicks_submit, n_clicks_input, url):
 @app.callback(
     Output("refresh-button", "style"),
     Output("refresh-button", "children"),
+    Output("refresh-button", "disabled"),
     Output("refresh-button-note", "children"),
     Input("refresh-button", "n_clicks"),
     State("api-key-input", "value"),
@@ -195,22 +196,23 @@ def update_output(n_clicks_submit, n_clicks_input, url):
 def refresh_connection(n_clicks, api_key):
     if n_clicks is not None:
         if openai.api_key is not None and valid_api_key(openai.api_key):
-            return {"color": "green"}, "Connected to GPT", None
+            return {"color": "green"}, "Connected to GPT", True, None
         else:
             if api_key is not None and valid_api_key(api_key):
                 openai.api_key = api_key
-                return {"color": "green"}, "Connected to GPT", None
+                return {"color": "green"}, "Connected to GPT", True, None
             else:
                 try:
                     # default, set $OPENAI_API_KEY to PATH env variable
                     openai.api_key = os.environ['OPENAI_API_KEY']
                     # print(openai.api_key)
                     if valid_api_key(openai.api_key):
-                        return {"color": "green"}, "Connected to GPT", None
+                        return {"color": "green"}, "Connected to GPT", True, None
                     else:
                         return (
-                            {"color": "blue"},
+                            {"color": "orange"},
                             "Not connected to GPT",
+                            False,
                             [
                                 "Please enter API key: ",
                                 dcc.Input(id="api-key-input", type="text"),
@@ -218,22 +220,24 @@ def refresh_connection(n_clicks, api_key):
                         )
                 except:
                     return (
-                        {"color": "blue"},
+                        {"color": "orange"},
                         "Not connected to GPT",
+                        False,
                         [
                             "Please enter API key: ",
                             dcc.Input(id="api-key-input", type="text"),
                         ],
                     )
-    # else:
-    #     return (
-    #         {"color": "orange"},
-    #         "Await connction to GPT",
-    #         [
-    #             "Please enter API key: ",
-    #             dcc.Input(id="api-key-input", type="text"),
-    #         ],
-    #     )
+    else:
+        return (
+            {"color": "gray"},
+            "Await connection to GPT",
+            False,
+            [
+                "Please enter API key: ",
+                dcc.Input(id="api-key-input", type="text"),
+            ],
+        )
 
 if __name__ == "__main__":
     app.run_server(debug=True)

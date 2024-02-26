@@ -8,9 +8,11 @@ RSS (Really Simple Syndication) is a semantic-web tool that keeps you updated by
 
 My hope is more people will learn about RSS and keep innovating in the RSS community to keep it alive because it is seriously useful and it has been the backbone of information for interent search engines like Google, and it can have many practical applications for people to browse internet that doesn't involve using a traditional browser software -- ie. more ways and more direct ways to interface with information on the internet in the future.
 
-These days, there are less and less RSS feeds being maintained by websites, and the quality of the RSS feeds being maintained are going down as well -- because RSS is free, and takes traffic away from those websites. Some RSS feeds are now filled with ads and some are filled with posts from years ago and never updated.
+These days, there are less and less RSS feeds being maintained by websites, and the quality of the some RSS feeds being maintained are going down as well -- that's more reasons why we need to widely adopt RSS.
 
-With this project, I wanted to try compacting the RSS feed information being delivered to me even further just for fun, by building my own RSS feed dashboard that integrates GPT. It's not a great idea in practice, but here it is anyway, and some of the code can plucked by AI to be recycled in other coding projects.
+On the other hand, you can still easily generate your own RSS feeds from any website using free RSS tools online, and that's always a plus, because there's many things you could do with your own customized RSS feed, think IoT!
+
+With this project, I wanted to try compacting the RSS feed information being delivered to me even further just for fun, using GPT. The idea sounded better than in practice, but here it is, and some of the code can plucked by AI to be recycled in other coding projects.
 
 ## Features:
 - test RSS feed URLs, and get summaries of their feeds.

@@ -144,6 +144,7 @@ http://feeds.bbci.co.uk/news/technology/rss.xml
 http://techreport.com/news.rss
 http://www.techspot.com/backend.xml
 http://www.techtarget.com/html/pr/tt_pr.xml
+http://feeds.arstechnica.com/arstechnica/gadgets
 http://www.digitaltrends.com/feed/
 http://feeds2.feedburner.com/bit-tech/all
 http://feeds.arstechnica.com/arstechnica/technology-lab
