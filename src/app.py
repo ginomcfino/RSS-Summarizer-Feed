@@ -3,18 +3,23 @@ from dash import Input, Output, State, dcc, html
 import traceback
 import openai
 import os
+
 # custom libs
 from rss_tools import *
 from helpers import *
 
-'''
+"""
 Notes:
 > API key: store as environ variable
-'''
+"""
 
 # Initialize Dash
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets, suppress_callback_exceptions=True)
+app = dash.Dash(
+    __name__,
+    external_stylesheets=external_stylesheets,
+    suppress_callback_exceptions=True,
+)
 server = app.server
 
 # Global variable
@@ -25,7 +30,7 @@ server = app.server
 # print(f'APIKEY: {API_KEY}')
 
 # Use the function to read options from a file
-options = read_options_from_file('../URLs/my_example_urls.txt')
+options = read_options_from_file("../URLs/my_example_urls.txt")
 
 # Define layout
 app.layout = html.Div(
@@ -78,9 +83,9 @@ app.layout = html.Div(
                     id="rss-dropdown",
                     options=options,
                     style={
-                        'margin-left': '10px',
-                        'min-width': '25%',
-                    }
+                        "margin-left": "10px",
+                        "min-width": "25%",
+                    },
                 ),
             ],
         ),
@@ -90,7 +95,7 @@ app.layout = html.Div(
                 "flex-direction": "column",
                 "justify-content": "center",
                 "align-items": "center",
-                'padding-top': '10px',
+                "padding-top": "10px",
             },
             children=[
                 dcc.Loading(
@@ -103,6 +108,7 @@ app.layout = html.Div(
     ]
 )
 
+
 @app.callback(
     Output("rss-input", "value"),
     Input("rss-dropdown", "value"),
@@ -110,6 +116,7 @@ app.layout = html.Div(
 def update_input(value):
     if value is not None:
         return value
+
 
 @app.callback(
     Output("rss-output", "children"),
@@ -122,11 +129,9 @@ def update_output(n_clicks_submit, n_clicks_input, url):
         # Set the loading indicator to True
         children = [
             dcc.Loading(
-                id='loading-indicator-inner',
-                type='circle',
-                children=[
-                    html.Div(id='rss-json')
-                ],
+                id="loading-indicator-inner",
+                type="circle",
+                children=[html.Div(id="rss-json")],
             )
         ]
         # Update the output component with the loading indicator
@@ -136,7 +141,12 @@ def update_output(n_clicks_submit, n_clicks_input, url):
         try:
             has_content, feed = get_rss_feed(url)
             if not has_content:
-                return [dcc.Markdown(f"Bad Feed Error:\n{json.dumps(feed, indent=4)}", style={'whiteSpace': 'pre-wrap', 'wordBreak': 'break-all'})]
+                return [
+                    dcc.Markdown(
+                        f"Bad Feed Error:\n{json.dumps(feed, indent=4)}",
+                        style={"whiteSpace": "pre-wrap", "wordBreak": "break-all"},
+                    )
+                ]
 
             # otherwise, feed has valid list of entries, convert them to cards
             children = [
@@ -169,6 +179,10 @@ def update_output(n_clicks_submit, n_clicks_input, url):
                         ),
                     ],
                 ),
+                html.Div(
+                    id="gpt-input-div",
+                    children=[],
+                ),
             ]
 
             children += generate_feed(feed)
@@ -185,29 +199,43 @@ def update_output(n_clicks_submit, n_clicks_input, url):
             print(e)
             return [html.P(f"Error: {e}")]
 
+
 @app.callback(
     Output("refresh-button", "style"),
     Output("refresh-button", "children"),
     Output("refresh-button", "disabled"),
     Output("refresh-button-note", "children"),
+    Output("gpt-input-div", "children"),
     Input("refresh-button", "n_clicks"),
     State("api-key-input", "value"),
 )
 def refresh_connection(n_clicks, api_key):
     if n_clicks is not None:
         if openai.api_key is not None and valid_api_key(openai.api_key):
-            return {"color": "green"}, "Connected to GPT", True, None
+            return {"color": "green"}, "Connected to GPT", True, None, gpt_input_box()
         else:
             if api_key is not None and valid_api_key(api_key):
                 openai.api_key = api_key
-                return {"color": "green"}, "Connected to GPT", True, None
+                return (
+                    {"color": "green"},
+                    "Connected to GPT",
+                    True,
+                    None,
+                    gpt_input_box(),
+                )
             else:
                 try:
                     # default, set $OPENAI_API_KEY to PATH env variable
-                    openai.api_key = os.environ['OPENAI_API_KEY']
+                    openai.api_key = os.environ["OPENAI_API_KEY"]
                     # print(openai.api_key)
                     if valid_api_key(openai.api_key):
-                        return {"color": "green"}, "Connected to GPT", True, None
+                        return (
+                            {"color": "green"},
+                            "Connected to GPT",
+                            True,
+                            None,
+                            gpt_input_box(),
+                        )
                     else:
                         return (
                             {"color": "orange"},
@@ -217,6 +245,7 @@ def refresh_connection(n_clicks, api_key):
                                 "Please enter API key: ",
                                 dcc.Input(id="api-key-input", type="text"),
                             ],
+                            None,
                         )
                 except:
                     return (
@@ -227,6 +256,7 @@ def refresh_connection(n_clicks, api_key):
                             "Please enter API key: ",
                             dcc.Input(id="api-key-input", type="text"),
                         ],
+                        None,
                     )
     else:
         return (
@@ -237,7 +267,88 @@ def refresh_connection(n_clicks, api_key):
                 "Please enter API key: ",
                 dcc.Input(id="api-key-input", type="text"),
             ],
+            None,
         )
+
+
+@app.callback(
+    Output("chat-output", "children"),
+    Input("input-box", "n_submit"),
+    State("input-box", "value"),
+)
+def ask_gpt(n_submit, value):
+    if n_submit > 0:
+        try:
+            response = chat_with_gpt(value)
+            return response
+        except Exception as e:
+            print(traceback())
+            print()
+            print(e)
+            return [html.P(f"Error: {e}")]
+
+def chat_with_gpt(user_input, model_name="gpt-3.5-turbo"):
+    """
+    Sends a message to the GPT model and returns the model's response.
+    """
+    completion = openai.chat.completions.create(
+        model=model_name,
+        messages=[
+            {
+                "role": "user",
+                "content": user_input,
+            },
+        ],
+    )
+    return completion.choices[0].message.content
+
+def gpt_input_box():
+    return html.Div(
+        children=[
+            html.Div(
+                style={
+                    "display": "flex",
+                    "flex-direction": "row",
+                    "justify-content": "center",
+                    "align-items": "center",
+                },
+                children=[
+                    html.Div(
+                        style={
+                            "padding-left": "20px",
+                            "padding-top": "10px",
+                        },
+                        children=[
+                            dcc.Input(
+                                id="input-box",
+                                type="text",
+                                n_submit=0,
+                                placeholder="temp ask a question to gpt...",
+                                style={
+                                    "width": "550px",
+                                },
+                            ),
+                        ],
+                    )
+                ],
+            ),
+            html.Div(
+                # id="gpt-output",
+                children=[
+                    dcc.Loading(
+                        # id="loading-1",
+                        type="default",  # You can change this to "circle", "cube", etc.
+                        children=[
+                            dcc.Markdown(
+                                id="chat-output", loading_state={"is_loading": True}
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
