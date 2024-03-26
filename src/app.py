@@ -1,8 +1,9 @@
 import dash
-from dash import Input, Output, State, dcc, html
+from dash import Dash, callback_context, Input, Output, State, dcc, html, MATCH, ALL
 import traceback
 import openai
 import os
+from dash.exceptions import PreventUpdate
 
 # custom libs
 from rss_tools import *
@@ -198,7 +199,28 @@ def update_output(n_clicks_submit, n_clicks_input, url):
             print()
             print(e)
             return [html.P(f"Error: {e}")]
+        
+# callback to summarize specific articles based on "SUMMARIZE" button click
+@app.callback(
+    Output({"type": "summarized-content", "index": MATCH}, "children"),
+    Input({"type": "summarize-button", "index": MATCH}, "id"),
+    Input({"type": "summarize-button", "index": MATCH}, "n_clicks"),
+)
+def update_modal_children(article_url, n_clicks):
+    if n_clicks is None:
+        raise PreventUpdate
 
+    # ctx = callback_context
+
+    # if not ctx.triggered:
+    #     button_id = 'No clicks yet'
+    # else:
+    #     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    print(article_url)
+
+    # Assuming you have a function `generate_summarized_card` that takes an id and returns a card
+    return [str(article_url)]
 
 @app.callback(
     Output("refresh-button", "style"),

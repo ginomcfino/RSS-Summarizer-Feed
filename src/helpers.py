@@ -7,6 +7,7 @@ import json
 from timeout import timeout
 from collections import Counter
 import openai
+import datetime
 
 
 # 1. UI Helper Functions
@@ -74,47 +75,56 @@ def generate_feed(entries):
 
         card = dbc.Card(
             children=[
-                dbc.CardHeader(html.H4(entry["title"], style={"text-align": "center", "text-justify": "inter-word"})),
+                dbc.CardHeader(
+                    html.H4(
+                        entry["title"],
+                        style={"text-align": "center", "text-justify": "inter-word"},
+                    )
+                ),
                 dbc.CardBody(
                     [
                         html.Div(
-                            card_description, 
+                            card_description,
                             style={
-                                'background-color': 'rgba(128, 128, 128, 0.2)', 
-                                'padding': '20px',
+                                "background-color": "rgba(128, 128, 128, 0.2)",
+                                "padding": "20px",
                                 "border-radius": "10px",
-                            }
+                            },
                         ),
                         html.Div(
                             style={"text-align": "center"},
                             children=[
-                                dbc.CardLink("view article", href=entry["link"]),
+                                html.Small(f"Published: {convert_timestamp(entry_fields['published'])}"),
                                 html.Div(style={"height": "10px"}),
-                                html.Small(f"Published: {entry_fields['published']}"),
+                                dbc.CardLink("view article", href=entry["link"]),
                             ],
                         ),
                     ]
                 ),
                 dbc.CardFooter(
                     [
-                        
-                        dbc.Button(
-                            "Summarize",
-                            color="primary",
-                            className="mr-1",
-                            id=f"{entry_fields['link']}",
-                        ),
-                        dbc.Card(
-                            [
-                                dbc.CardBody(
-                                    [
-                                        html.P(
-                                            "This is some text within a card body.",
-                                            className="card-text",
-                                        )
-                                    ]
-                                )
-                            ]
+                        html.Div(
+                            children=[
+                                dbc.Button(
+                                    "Summarize",
+                                    color="primary",
+                                    className="mr-1",
+                                    id={
+                                        'type': "summarize-button",
+                                        'index': f"{entry_fields['link']}",
+                                    },
+                                ),
+                                html.Div(
+                                    children=[
+                                        "TEMP MODAL CONTENT"
+                                    ],
+                                    id={
+                                        'type': "summarized-content",
+                                        'index': f"{entry_fields['link']}",
+                                    },
+                                ),
+                            ],
+                            style={"text-align": "center"},
                         ),
                     ]
                 ),
@@ -139,6 +149,30 @@ def generate_feed(entries):
         )
         children.append(card_div)
     return children
+
+def generate_summarized_card(entry_fields):
+    return dbc.Card(
+        [
+            dbc.CardBody(
+                [
+                    html.P(
+                        "This is some text within a card body.",
+                        className="card-text",
+                    )
+                ]
+            ),
+        ],
+        style={
+            "max-width": "80%",
+            "margin": "auto",
+            "padding-left": "10px",
+            "padding-right": "10px",
+            "padding-bottom": "10px",
+            "border": "1px solid #ddd",
+            "border-radius": "15px",
+            "box-shadow": "2px 2px 2px lightgrey",
+        },
+    ),
 
 # temporary fix (make dropdown options list from short input files)
 def read_options_from_file(file_path):
@@ -227,6 +261,13 @@ def update_counter(keys:list, counter:Counter):
                 counter[k] += 1
             else:
                 counter[k] = 1
+
+def convert_timestamp(timestamp_str):
+    try:
+        timestamp = datetime.datetime.strptime(timestamp_str, '%a, %d %b %Y %H:%M:%S %z')
+        return timestamp.strftime('%a, %d %b %Y %H:%M:%S')
+    except:
+        return timestamp_str
 
 # 3. API Helper Functions
 
