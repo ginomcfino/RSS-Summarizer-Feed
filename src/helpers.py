@@ -72,28 +72,72 @@ def generate_feed(entries):
         else:
             card_description = html.P(body_text, style={'white-space': 'pre-wrap', 'wordBreak': 'break-all'})
 
-        card_body = dbc.Card(
-            dbc.CardBody(
-                [
-                    html.H4(entry['title']),
-                    card_description,
-                    dbc.CardLink("view article", href=entry['link']),
-                ]
-            ),
-        )
-        card = html.Div(
+        card = dbc.Card(
+            children=[
+                dbc.CardHeader(html.H4(entry["title"], style={"text-align": "center", "text-justify": "inter-word"})),
+                dbc.CardBody(
+                    [
+                        html.Div(
+                            card_description, 
+                            style={
+                                'background-color': 'rgba(128, 128, 128, 0.2)', 
+                                'padding': '20px',
+                                "border-radius": "10px",
+                            }
+                        ),
+                        html.Div(
+                            style={"text-align": "center"},
+                            children=[
+                                dbc.CardLink("view article", href=entry["link"]),
+                                html.Div(style={"height": "10px"}),
+                                html.Small(f"Published: {entry_fields['published']}"),
+                            ],
+                        ),
+                    ]
+                ),
+                dbc.CardFooter(
+                    [
+                        
+                        dbc.Button(
+                            "Summarize",
+                            color="primary",
+                            className="mr-1",
+                            id=f"{entry_fields['link']}",
+                        ),
+                        dbc.Card(
+                            [
+                                dbc.CardBody(
+                                    [
+                                        html.P(
+                                            "This is some text within a card body.",
+                                            className="card-text",
+                                        )
+                                    ]
+                                )
+                            ]
+                        ),
+                    ]
+                ),
+            ],
             style={
-                "max-width": "60%",
-                "margin": "30px auto",
-                "padding": "20px",
-                "text-align": "center",
+                "max-width": "80%",
+                "margin": "auto",
+                "padding-left": "10px",
+                "padding-right": "10px",
+                "padding-bottom": "10px",
                 "border": "1px solid #ddd",
                 "border-radius": "15px",
                 "box-shadow": "2px 2px 2px lightgrey",
             },
-            children=[card_body],
         )
-        children.append(card)
+        card_div = html.Div(
+            style={
+                "padding": "20px",
+                "align-items": "center",
+            },
+            children=[card],
+        )
+        children.append(card_div)
     return children
 
 # temporary fix (make dropdown options list from short input files)
