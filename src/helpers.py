@@ -6,7 +6,10 @@ import feedparser
 import json
 from timeout import timeout
 from collections import Counter
-import time
+import openai
+import datetime
+import requests
+from bs4 import BeautifulSoup
 
 
 # 1. UI Helper Functions
@@ -58,7 +61,7 @@ def generate_feed(entries):
 
         body_text = str(entry_fields['summary'])
 
-        if '</' in body_text and '>' in body_text:
+        if '<' in body_text and '>' in body_text:
             body_text = (
                 """<style>
                         img {
@@ -68,33 +71,85 @@ def generate_feed(entries):
                     </style>"""
                 + body_text
             )
-            card_description = html.Div(DangerouslySetInnerHTML(body_text))
+            card_description = html.Div(DangerouslySetInnerHTML(body_text), style={'white-space': 'pre-wrap', 'wordBreak': 'break-all'})
         else:
             card_description = html.P(body_text, style={'white-space': 'pre-wrap', 'wordBreak': 'break-all'})
 
-        card_body = dbc.Card(
-            dbc.CardBody(
-                [
-                    html.H4(entry['title']),
-                    card_description,
-                    dbc.CardLink("Go to source", href=entry['link']),
-                ]
-            ),
-        )
-        card = html.Div(
+        card = dbc.Card(
+            children=[
+                dbc.CardHeader(
+                    html.H4(
+                        entry["title"],
+                        style={"text-align": "center", "text-justify": "inter-word"},
+                    )
+                ),
+                dbc.CardBody(
+                    [
+                        html.Div(
+                            card_description,
+                            style={
+                                "background-color": "rgba(128, 128, 128, 0.2)",
+                                "padding": "20px",
+                                "border-radius": "10px",
+                            },
+                        ),
+                        html.Div(
+                            style={"text-align": "center"},
+                            children=[
+                                html.Small(f"Published: {convert_timestamp(entry_fields['published'])}"),
+                                html.Div(style={"height": "10px"}),
+                                dbc.CardLink("view article", href=entry["link"]),
+                            ],
+                        ),
+                    ]
+                ),
+                dbc.CardFooter(
+                    [
+                        html.Div(
+                            children=[
+                                dbc.Button(
+                                    "Summarize",
+                                    color="primary",
+                                    className="mr-1",
+                                    id={
+                                        'type': "summarize-button",
+                                        'index': f"{entry_fields['link']}",
+                                    },
+                                ),
+                                html.Div(
+                                    id={
+                                        'type': "summarized-content",
+                                        'index': f"{entry_fields['link']}",
+                                    },
+                                    style={"text-align": "left"},
+                                ),
+                            ],
+                            style={"text-align": "center"},
+                        ),
+                    ]
+                ),
+            ],
             style={
-                "max-width": "60%",
-                "margin": "30px auto",
-                "padding": "20px",
-                "text-align": "center",
+                "max-width": "80%",
+                "margin": "auto",
+                "padding-left": "10px",
+                "padding-right": "10px",
+                "padding-bottom": "10px",
                 "border": "1px solid #ddd",
                 "border-radius": "15px",
                 "box-shadow": "2px 2px 2px lightgrey",
             },
-            children=[card_body],
         )
-        children.append(card)
+        card_div = html.Div(
+            style={
+                "padding": "20px",
+                "align-items": "center",
+            },
+            children=[card],
+        )
+        children.append(card_div)
     return children
+
 
 # temporary fix (make dropdown options list from short input files)
 def read_options_from_file(file_path):
@@ -184,6 +239,98 @@ def update_counter(keys:list, counter:Counter):
             else:
                 counter[k] = 1
 
+def convert_timestamp(timestamp_str):
+    try:
+        timestamp = datetime.datetime.strptime(timestamp_str, '%a, %d %b %Y %H:%M:%S %z')
+        return timestamp.strftime('%a, %d %b %Y %H:%M:%S')
+    except:
+        return timestamp_str
+    
+# craw website to return content as text ata
+def crawl_website(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+      soup = BeautifulSoup(response.text, 'html.parser')
+      data = [p.get_text() for p in soup.find_all('p')]
+      # Changing data to a single string
+      return ' '.join(data)
+    else:
+      return(f"Failed to crawl {url}. code {response.status_code}")
+
+# 3. API Helper Functions
+
+# check whether api key is valid
+def valid_api_key(api_key):
+    try:
+        openai.api_key = api_key
+        _models = openai.models.list()
+        return True
+    except:
+        return False
+    
+# TODO: make funtions to select different models from OpenAI, Anthropic, and others.
+def chat_with_gpt(user_input, model_name="gpt-3.5-turbo"):
+    """
+    Sends a message to the GPT model and returns the model's response.
+    """
+    completion = openai.chat.completions.create(
+        model=model_name,
+        messages=[
+            {
+                "role": "user",
+                "content": user_input,
+            },
+        ],
+    )
+    return completion.choices[0].message.content
+
+
+def gpt_input_box():
+    return html.Div(
+        children=[
+            html.Div(
+                style={
+                    "display": "flex",
+                    "flex-direction": "row",
+                    "justify-content": "center",
+                    "align-items": "center",
+                },
+                children=[
+                    html.Div(
+                        style={
+                            "padding-left": "20px",
+                            "padding-top": "10px",
+                        },
+                        children=[
+                            dcc.Input(
+                                id="input-box",
+                                type="text",
+                                n_submit=0,
+                                placeholder="chat...",
+                                style={
+                                    "width": "550px",
+                                },
+                            ),
+                        ],
+                    )
+                ],
+            ),
+            html.Div(
+                # id="gpt-output",
+                children=[
+                    dcc.Loading(
+                        # id="loading-1",
+                        type="default",  # You can change this to "circle", "cube", etc.
+                        children=[
+                            dcc.Markdown(
+                                id="chat-output", loading_state={"is_loading": True}
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
 
 # run as needed
 if __name__=='__main__':
