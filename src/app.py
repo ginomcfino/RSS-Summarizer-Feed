@@ -49,7 +49,6 @@ app.layout = html.Div(
                 html.P(
                     "project repository: https://github.com/ginomcfino/RSS-Summarizer-Feed"
                 ),
-                html.P("(under development by Weiqi Ji)"),
                 html.H4("enter rss feed url:"),
             ],
         ),
@@ -199,28 +198,40 @@ def update_output(n_clicks_submit, n_clicks_input, url):
             print()
             print(e)
             return [html.P(f"Error: {e}")]
-        
+
+
 # callback to summarize specific articles based on "SUMMARIZE" button click
 @app.callback(
     Output({"type": "summarized-content", "index": MATCH}, "children"),
     Input({"type": "summarize-button", "index": MATCH}, "id"),
     Input({"type": "summarize-button", "index": MATCH}, "n_clicks"),
+    Input("refresh-button", "disabled"),
 )
-def update_modal_children(article_url, n_clicks):
+def update_modal_children(btn_id, n_clicks, connected_to_gpt):
     if n_clicks is None:
         raise PreventUpdate
 
-    # ctx = callback_context
+    # print(btn_id['index'])
 
-    # if not ctx.triggered:
-    #     button_id = 'No clicks yet'
-    # else:
-    #     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    if connected_to_gpt:
+        try:
+            url = btn_id['index']
+            summary = crawl_website(url)
+            prompt = "Summarize this article in 150 words or less: " + summary
+            gpt_summary = chat_with_gpt(prompt)
+            return html.Div(
+                gpt_summary,
+                style={
+                    "background-color": "rgba(128, 128, 128, 0.2)",
+                    "padding": "20px",
+                    "border-radius": "10px",
+                    'margin-top': '10px',
+                },
+            ),
+        except Exception as e:
+            return [html.P(f"Error: {e}")]
+    return "Not Connected to GPT"
 
-    print(article_url)
-
-    # Assuming you have a function `generate_summarized_card` that takes an id and returns a card
-    return [str(article_url)]
 
 @app.callback(
     Output("refresh-button", "style"),
@@ -308,68 +319,6 @@ def ask_gpt(n_submit, value):
             print()
             print(e)
             return [html.P(f"Error: {e}")]
-
-def chat_with_gpt(user_input, model_name="gpt-3.5-turbo"):
-    """
-    Sends a message to the GPT model and returns the model's response.
-    """
-    completion = openai.chat.completions.create(
-        model=model_name,
-        messages=[
-            {
-                "role": "user",
-                "content": user_input,
-            },
-        ],
-    )
-    return completion.choices[0].message.content
-
-def gpt_input_box():
-    return html.Div(
-        children=[
-            html.Div(
-                style={
-                    "display": "flex",
-                    "flex-direction": "row",
-                    "justify-content": "center",
-                    "align-items": "center",
-                },
-                children=[
-                    html.Div(
-                        style={
-                            "padding-left": "20px",
-                            "padding-top": "10px",
-                        },
-                        children=[
-                            dcc.Input(
-                                id="input-box",
-                                type="text",
-                                n_submit=0,
-                                placeholder="temp ask a question to gpt...",
-                                style={
-                                    "width": "550px",
-                                },
-                            ),
-                        ],
-                    )
-                ],
-            ),
-            html.Div(
-                # id="gpt-output",
-                children=[
-                    dcc.Loading(
-                        # id="loading-1",
-                        type="default",  # You can change this to "circle", "cube", etc.
-                        children=[
-                            dcc.Markdown(
-                                id="chat-output", loading_state={"is_loading": True}
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-        ],
-    )
 
 
 if __name__ == "__main__":
