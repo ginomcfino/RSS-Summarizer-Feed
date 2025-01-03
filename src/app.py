@@ -170,7 +170,7 @@ def update_output(n_clicks_submit, n_clicks_input, url):
                             ],
                         ),
                         html.Button(
-                            "Await connection to GPT",
+                            "Waiting for GPT Connection",
                             id="refresh-button",
                             n_clicks=None,
                             style={

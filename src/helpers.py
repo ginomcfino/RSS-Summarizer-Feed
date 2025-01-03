@@ -1,7 +1,6 @@
 import dash
 from dash import Input, Output, State, dcc, html
 import dash_bootstrap_components as dbc
-from dash_dangerously_set_inner_html import DangerouslySetInnerHTML
 import feedparser
 import json
 from timeout import timeout
@@ -71,7 +70,11 @@ def generate_feed(entries):
                     </style>"""
                 + body_text
             )
-            card_description = html.Div(DangerouslySetInnerHTML(body_text), style={'white-space': 'pre-wrap', 'wordBreak': 'break-all'})
+
+            # card_description = html.Div(DangerouslySetInnerHTML(body_text), style={'white-space': 'pre-wrap', 'wordBreak': 'break-all'})s
+            # markdown to show inner html content returned from rss feed
+            dcc.Markdown(body_text, dangerously_allow_html=False, style={'white-space': 'pre-wrap', 'wordBreak': 'break-all'})
+
         else:
             card_description = html.P(body_text, style={'white-space': 'pre-wrap', 'wordBreak': 'break-all'})
 
